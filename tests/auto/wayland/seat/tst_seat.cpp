@@ -563,6 +563,14 @@ void tst_seat::multiTouch()
     }
     {
         auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchUpdate);
+        QCOMPARE(e.touchPointStates, QEventPoint::State::Stationary);
+        QCOMPARE(e.touchPoints.size(), 1);
+        QCOMPARE(e.touchPoints[0].state(), QEventPoint::State::Stationary);
+        QCOMPARE(e.touchPoints[0].position(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
+    }
+    {
+        auto e = window.m_events.takeFirst();
         QCOMPARE(e.type, QEvent::TouchEnd);
         QCOMPARE(e.touchPointStates, QEventPoint::State::Released);
         QCOMPARE(e.touchPoints.size(), 1);
@@ -584,11 +592,9 @@ void tst_seat::multiTouchUpAndMotionFrame()
         t->sendDown(xdgToplevel()->surface(), {48, 48}, 1);
         t->sendFrame(c);
 
-        // Sending an up event after a frame event, before any motion or down events used to
-        // unnecessarily trigger a workaround for a bug in an old version of Weston. The workaround
-        // would prematurely insert a fake frame event splitting the touch event up into two events.
-        // However, this should only be needed on the up event for the very last touch point. So in
-        // this test we verify that it doesn't unncecessarily break up the events.
+        // Sending an up event after a frame event, before any motion or down events triggers a
+        // workaround for a bug in Weston and Mutter. The workaround inserts a fake frame event
+        // splitting the touch event up into two events.
         t->sendUp(c, 0);
         t->sendMotion(c, {49, 48}, 1);
         t->sendFrame(c);
@@ -609,7 +615,13 @@ void tst_seat::multiTouchUpAndMotionFrame()
         QCOMPARE(e.type, QEvent::TouchUpdate);
         QCOMPARE(e.touchPoints.size(), 2);
         QCOMPARE(e.touchPoints[0].state(), QEventPoint::State::Released);
-        QCOMPARE(e.touchPoints[1].state(), QEventPoint::State::Updated);
+        QCOMPARE(e.touchPoints[1].state(), QEventPoint::State::Stationary);
+    }
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchUpdate);
+        QCOMPARE(e.touchPoints.size(), 1);
+        QCOMPARE(e.touchPoints[0].state(), QEventPoint::State::Updated);
     }
     {
         auto e = window.m_events.takeFirst();
