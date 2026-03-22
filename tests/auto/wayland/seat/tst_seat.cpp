@@ -563,14 +563,6 @@ void tst_seat::multiTouch()
     }
     {
         auto e = window.m_events.takeFirst();
-        QCOMPARE(e.type, QEvent::TouchUpdate);
-        QCOMPARE(e.touchPointStates, QEventPoint::State::Stationary);
-        QCOMPARE(e.touchPoints.size(), 1);
-        QCOMPARE(e.touchPoints[0].state(), QEventPoint::State::Stationary);
-        QCOMPARE(e.touchPoints[0].position(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
-    }
-    {
-        auto e = window.m_events.takeFirst();
         QCOMPARE(e.type, QEvent::TouchEnd);
         QCOMPARE(e.touchPointStates, QEventPoint::State::Released);
         QCOMPARE(e.touchPoints.size(), 1);

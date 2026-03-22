@@ -1590,7 +1590,17 @@ void QWaylandInputDevice::Touch::releasePoints()
 
 void QWaylandInputDevice::Touch::touch_frame()
 {
-    // TODO: early return if no events?
+    // Early return if no events.
+    bool hasEvents = false;
+    for (const auto &pendingTouchPoint: mPendingTouchPoints) {
+        // All non-released touch points should be part of the next touch event
+        if (pendingTouchPoint.state != QEventPoint::Stationary) {
+            hasEvents = true;
+            break;
+        }
+    }
+    if (!hasEvents)
+        return;
 
     QWindow *window = mFocus ? mFocus->window() : nullptr;
 
