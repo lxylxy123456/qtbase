@@ -1593,7 +1593,6 @@ void QWaylandInputDevice::Touch::touch_frame()
     // Early return if no events.
     bool hasEvents = false;
     for (const auto &pendingTouchPoint: mPendingTouchPoints) {
-        // All non-released touch points should be part of the next touch event
         if (pendingTouchPoint.state != QEventPoint::Stationary) {
             hasEvents = true;
             break;
